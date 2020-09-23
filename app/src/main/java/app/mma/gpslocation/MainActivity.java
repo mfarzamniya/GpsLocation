@@ -61,7 +61,8 @@ public class MainActivity extends AppCompatActivity {
                     "Location is : \n lat : " + lat + "\n lon : " + lon,
                     Toast.LENGTH_LONG).show();
 
-            Geocoder geocoder = new Geocoder(getApplicationContext());
+            Locale locale = new Locale("fa");
+            Geocoder geocoder = new Geocoder(getApplicationContext(), locale);
             try {
                 List<Address> addressList = geocoder.getFromLocation(lat, lon, 1);
                 Log.e("", "");
