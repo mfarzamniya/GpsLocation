@@ -13,46 +13,37 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
 
+import com.google.android.gms.maps.CameraUpdate;
+import com.google.android.gms.maps.CameraUpdateFactory;
+import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.OnMapReadyCallback;
+import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
+import com.google.android.gms.maps.model.CameraPosition;
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.MarkerOptions;
+
 import java.io.IOException;
 import java.util.List;
 import java.util.Locale;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements OnMapReadyCallback {
 
-    private static final int PERMISSION_REQ_CODE = 1234;
+    SupportMapFragment map;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        checkPermissions();
+
+        location();
+
+        map = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
+
+        map.getMapAsync(this);
     }
 
-    private void checkPermissions() {
-        if(ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
-                != PackageManager.PERMISSION_GRANTED){
-
-            ActivityCompat.requestPermissions(this,
-                    new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
-                    PERMISSION_REQ_CODE);
-        }
-    }
-
-    @Override
-    public void onRequestPermissionsResult(int requestCode,
-                                           @NonNull String[] permissions,
-                                           @NonNull int[] grantResults) {
-
-        if(requestCode == PERMISSION_REQ_CODE){
-            if(grantResults[0] == PackageManager.PERMISSION_GRANTED){
-                Toast.makeText(this, "Permission granted", Toast.LENGTH_LONG).show();
-            } else {
-                Toast.makeText(this, "Permission denied to access location", Toast.LENGTH_LONG).show();
-            }
-        }
-    }
-
-    public void onclick(View v){
+    private void location() {
         GpsTracker gpstracker = new GpsTracker(this);
         if(gpstracker.isCanGetLocation()){
             double lat = gpstracker.getLatitude();
@@ -72,9 +63,40 @@ public class MainActivity extends AppCompatActivity {
                 e.printStackTrace();
             }
 
-
         } else {
             gpstracker.showGpsAlertDialog();
         }
+    }
+
+    @Override
+    public void onMapReady(GoogleMap googleMap) {
+
+        LatLng latLng = new LatLng(35.72749369051, 51.32034518091);
+
+        MarkerOptions markerOptions = new MarkerOptions()
+             .position(latLng).title("Android Learn Class")
+             .snippet("Vali asr aq")
+             .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE));
+
+        googleMap.addMarker(markerOptions);
+
+        LatLng latLng2 = new LatLng(35.82749369051, 51.52034518091);
+
+        MarkerOptions markerOptions2 = new MarkerOptions()
+                .position(latLng).title("Android Learn Class 2")
+                .snippet("Vali asr aq 2")
+                .icon(BitmapDescriptorFactory.fromResource(R.drawable.iconfinder_18_2959847));
+
+        googleMap.addMarker(markerOptions2);
+
+        CameraPosition cameraPosition = new CameraPosition.Builder()
+                .target(latLng).zoom(12).build();
+
+        googleMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
+
+        googleMap.getUiSettings().setZoomControlsEnabled(true);
+
+        googleMap.setMapType(googleMap.MAP_TYPE_SATELLITE);
+
     }
 }
